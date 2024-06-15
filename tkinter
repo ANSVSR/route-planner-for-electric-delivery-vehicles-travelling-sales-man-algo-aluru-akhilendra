@@ -1,0 +1,56 @@
+class TSPSolver:
+    def __init__(self, num_cities):
+        self.num_cities = num_cities
+        self.cities = []
+        self.tour = []
+        self.distances = {}
+        self.canvas = None
+        self.canvas_width = 600
+        self.canvas_height = 600
+        self.scale_factor = 0.9
+
+    def initialize_cities(self):
+        for i in range(self.num_cities):
+            x = int(self.canvas_width * self.scale_factor * (0.5 + 0.5 * math.cos(2 * math.pi * i / self.num_cities)))
+            y = int(self.canvas_height * self.scale_factor * (0.5 + 0.5 * math.sin(2 * math.pi * i / self.num_cities)))
+            self.cities.append((x, y))
+
+    def compute_distances(self):
+        for i in range(self.num_cities):
+            for j in range(i + 1, self.num_cities):
+                distance = math.sqrt((self.cities[i][0] - self.cities[j][0]) ** 2 + (self.cities[i][1] - self.cities[j][1]) ** 2)
+                self.distances[(i, j)] = distance
+                self.distances[(j, i)] = distance
+
+    def solve(self):
+        self.tour = []
+        visited = set()
+        current_city = 0
+        self.tour.append(current_city)
+        visited.add(current_city)
+        while len(visited) < self.num_cities:
+            next_city = None
+            next_distance = float('inf')
+            for i in range(self.num_cities):
+                if i not in visited and self.distances[(current_city, i)] < next_distance:
+                    next_city = i
+                    next_distance = self.distances[(current_city, i)]
+            self.tour.append(next_city)
+            visited.add(next_city)
+            current_city = next_city
+        self.tour.append(0)
+
+    def draw(self):
+        if not self.canvas:
+            return
+        self.canvas.delete('all')
+        for i in range(self.num_cities):
+            x, y = self.cities[i]
+            self.canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill='blue')
+        for i in range(self.num_cities - 1):
+            x1, y1 = self.cities[self.tour[i]]
+            x2, y2 = self.cities[self.tour[i + 1]]
+            self.canvas.create_line(x1, y1, x2, y2, fill='red')
+        x1, y1 = self.cities[self.tour[-1]]
+        x2, y2 = self.cities[self.tour[0]]
+        self.canvas
